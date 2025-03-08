@@ -26,5 +26,5 @@ This repository contains the **Node.js (Express) backend**, which interacts with
 
 ### 1️⃣ **Clone the Repository**  
 ```sh
-git clone https://github.com/your-repo-name/nyaypath-backend.git
-cd nyaypath-backend
+git clone https://github.com/harshakl03/NyayPath.git
+cd NyayPath
