@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const Auth = require("../Models/Auth");
 const ENV = require("../config/env");
+const Mediator = require("../Models/Mediator");
 
 const isExistingAuth = async (email) => {
   const existingAuth = await Auth.findOne({ email });
@@ -78,6 +79,7 @@ const isAdmin = async (token) => {
   return "non-admin";
 };
 
+// checks if current auth and requesting auth are same, if not returns invalid else if returns no-token if token doesnt exist else return auth type
 const isLoggedIn = async (id, token) => {
   if (!token) {
     return "no-token";
@@ -88,7 +90,8 @@ const isLoggedIn = async (id, token) => {
   if (loggedUserId != id) {
     return "invalid";
   }
-  return "valid";
+  if (decode.level == 2) return "mediator";
+  return "user";
 };
 
 const deleteAuthByLinkedId = async (linked_id) => {
@@ -101,6 +104,25 @@ const deleteAuthByLinkedId = async (linked_id) => {
   }
 };
 
+const verifyMediator = async (req, res) => {
+  try {
+    const token = req.cookies.auth_token;
+    const _id = req.params.id;
+    const status = req.params.status;
+    const auth = await isAdmin(token);
+    if (auth == "non-admin")
+      return res.status(401).json({ message: "Unauthorized access" });
+    await Mediator.findOneAndUpdate(
+      { _id },
+      { $set: { verification_status: status } }
+    );
+
+    return res.status(201).json({ message: `Mediator ${status}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createAuth,
   login,
@@ -108,4 +130,5 @@ module.exports = {
   isLoggedIn,
   deleteAuthByLinkedId,
   isAdmin,
+  verifyMediator,
 };

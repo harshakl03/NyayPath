@@ -108,9 +108,33 @@ const deleteMediatorById = async (req, res) => {
   }
 };
 
+const changeStatus = async (req, res) => {
+  try {
+    const _id = req.params.id;
+    const { status } = req.body;
+    const token = req.cookies.auth_token;
+    const isMediator = await isLoggedIn(_id, token);
+    if (isMediator == "no-token") {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
+    }
+    if (isMediator == "invalid") {
+      return res.status(403).json({ message: "You don't have access" });
+    }
+
+    await Mediator.findOneAndUpdate({ _id }, { $set: { status } });
+
+    return res.status(200).json({ message: `Status Changed to ${status}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createMediator,
   findMediators,
   findMediatorById,
   deleteMediatorById,
+  changeStatus,
 };

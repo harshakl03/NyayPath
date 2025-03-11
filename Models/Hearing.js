@@ -5,7 +5,7 @@ const HearingSchema = new mongoose.Schema({
   case_id: { type: String, ref: "Case", required: true },
   booking_id: { type: String, ref: "Booking", required: true },
   user_ids: { type: [String], ref: "User", required: true },
-  mediator_ids: { type: [String], ref: "Mediator", required: true },
+  mediator_id: { type: String, ref: "Mediator", required: true },
   online_details: {
     meet_link: { type: String },
     last_meet: { type: Date },
@@ -22,9 +22,8 @@ const HearingSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["Scheduled", "Ongoing", "Completed", "Cancelled"],
-    default: "Scheduled",
   },
-  scheduled_date: { type: Date, required: true },
+  scheduled_date: { type: Date },
   created_at: { type: Date, default: Date.now },
 });
 
