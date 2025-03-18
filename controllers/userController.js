@@ -48,7 +48,7 @@ const findUsers = async (req, res) => {
   try {
     const token = req.cookies.auth_token;
     const status = await isAdmin(token);
-    if (status != "admin")
+    if (status != 3)
       return res.status(400).json({ message: "Unauthorized access" });
     const users = await User.find();
     res.status(200).json(users);
@@ -62,12 +62,12 @@ const findUserById = async (req, res) => {
     const id = req.params.id;
     const token = req.cookies.auth_token;
     const status = await isLoggedIn(id, token);
-    if (status == "no-token") {
+    if (status == -1) {
       return res
         .status(401)
         .json({ message: "Unauthorized: No token provided" });
     }
-    if (status == "invalid") {
+    if (status == 0) {
       return res.status(403).json({ message: "You don't have access" });
     }
     const user = await User.findById(id);
@@ -85,12 +85,12 @@ const deleteUserById = async (req, res) => {
     const id = req.params.id;
     const token = req.cookies.auth_token;
     const status = await isLoggedIn(id, token);
-    if (status == "no-token") {
+    if (status == -1) {
       return (
         res.status(401), json({ message: "Unauthorized: No token provided" })
       );
     }
-    if (status == "invalid") {
+    if (status == 0) {
       return res.status(403).json({ message: "You don't have access" });
     }
     const authDeleted = await deleteAuthByLinkedId(id);

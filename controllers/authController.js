@@ -72,26 +72,23 @@ const login = async (req, res) => {
 
 const isAdmin = async (token) => {
   if (!token) {
-    return "no-token";
+    return -1;
   }
   const decode = jwt.verify(token, ENV.JWT_SECRET);
-  if (decode.level == 3) return "admin";
-  return "non-admin";
+  return decode.level;
 };
 
 // checks if current auth and requesting auth are same, if not returns invalid else if returns no-token if token doesnt exist else return auth type
 const isLoggedIn = async (id, token) => {
   if (!token) {
-    return "no-token";
+    return -1;
   }
   const decode = jwt.verify(token, ENV.JWT_SECRET);
-  if (decode.level == 3) return "admin";
   const loggedUserId = decode.linked_id;
   if (loggedUserId != id) {
-    return "invalid";
+    return 0;
   }
-  if (decode.level == 2) return "mediator";
-  return "user";
+  return decode.level;
 };
 
 const deleteAuthByLinkedId = async (linked_id) => {

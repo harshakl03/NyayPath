@@ -6,8 +6,6 @@ const {
   findUserById,
   deleteUserById,
 } = require("../controllers/userController");
-const { login } = require("../controllers/authController");
-const verifyToken = require("../middleware/authMiddleware");
 
 router.get("/", findUsers);
 router.get("/:id", findUserById);

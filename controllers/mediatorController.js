@@ -43,7 +43,7 @@ const findMediators = async (req, res) => {
   try {
     const token = req.cookies.auth_token;
     const status = await isAdmin(token);
-    if (status != "admin")
+    if (status != 3)
       return res.status(400).json({ message: "Unauthorized access" });
     const mediators = await Mediator.find();
     res.status(200).json(mediators);
@@ -57,12 +57,12 @@ const findMediatorById = async (req, res) => {
     const id = req.params.id;
     const token = req.cookies.auth_token;
     const status = await isLoggedIn(id, token);
-    if (status == "no-token") {
+    if (status == -1) {
       return res
         .status(401)
         .json({ message: "Unauthorized: No token provided" });
     }
-    if (status == "invalid") {
+    if (status == 0) {
       return res.status(403).json({ message: "You don't have access" });
     }
     const mediator = await Mediator.findById(id);
@@ -80,12 +80,12 @@ const deleteMediatorById = async (req, res) => {
     const id = req.params.id;
     const token = req.cookies.auth_token;
     const status = await isLoggedIn(id, token);
-    if (status == "no-token") {
+    if (status == -1) {
       return res
         .status(401)
         .json({ message: "Unauthorized: No token provided" });
     }
-    if (status == "invalid") {
+    if (status == 0) {
       return res.status(403).json({ message: "You don't have access" });
     }
     const authDeleted = await deleteAuthByLinkedId(id);
@@ -114,12 +114,12 @@ const changeStatus = async (req, res) => {
     const { status } = req.body;
     const token = req.cookies.auth_token;
     const isMediator = await isLoggedIn(_id, token);
-    if (isMediator == "no-token") {
+    if (isMediator == -1) {
       return res
         .status(401)
         .json({ message: "Unauthorized: No token provided" });
     }
-    if (isMediator == "invalid") {
+    if (isMediator == 0) {
       return res.status(403).json({ message: "You don't have access" });
     }
 

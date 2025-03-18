@@ -26,7 +26,7 @@ const fileCase = async (req, res) => {
 
     const isUser = await isLoggedIn(user_id, token);
 
-    if (isUser != "user" || isUser == "invalid")
+    if (isUser != 1 || isUser == 0)
       return res.status(401).json({ message: "Unauthorized access" });
 
     if (!party_ids)
@@ -97,7 +97,7 @@ const acceptCase = async (req, res) => {
 
     const isMediator = await isLoggedIn(mediator_id, token);
 
-    if (isMediator != "mediator" || isMediator == "invalid")
+    if (isMediator != 2 || isMediator == 0)
       return res.status(401).json({ message: "Unauthorized access" });
     const booking_id = await Booking.findOne({ case_id }).select("_id");
     const user_ids = await Case.findOne({ _id: case_id }).select("parties");
@@ -148,7 +148,7 @@ const rejectCase = async (req, res) => {
     const token = req.cookies.auth_token;
 
     const isMediator = await isLoggedIn(mediator_id, token);
-    if (isMediator != "mediator" || isMediator == "invalid")
+    if (isMediator != 2 || isMediator == 0)
       return res.status(401).json({ message: "Unauthorized access" });
 
     await Case.findOneAndUpdate(
@@ -174,10 +174,10 @@ const fetchMyCases = async (req, res) => {
     const token = req.cookies.auth_token;
     const auth = await isLoggedIn(_id, token);
 
-    if (auth == "invalid")
+    if (auth == 0)
       return res.status(401).json({ message: "Unauthorized access" });
 
-    if (auth == "user") {
+    if (auth == 1) {
       const cases = await User.findOne({ _id }).populate({
         path: "cases_involved",
         select:
@@ -205,7 +205,7 @@ const uploadDocument = async (req, res) => {
     const { documents } = req.body;
     const token = req.cookies.auth_token;
     const isMediator = await isLoggedIn(mediator_id, token);
-    if (isMediator == "mediator") {
+    if (isMediator == 2) {
       await Case.findOneAndUpdate(
         { _id: case_id },
         { $addToSet: { documents } }
