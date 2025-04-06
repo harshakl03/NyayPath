@@ -269,8 +269,8 @@ const mediators = [
 
   try {
     await Mediator.deleteMany();
-    // await Mediator.collection.dropIndex("mci_registration_number_1");
-    // await Mediator.collection.dropIndex("empanelment_id_1");
+    await Mediator.collection.dropIndex("mci_registration_number_1");
+    await Mediator.collection.dropIndex("empanelment_id_1");
     console.log("Mediator collection flushed!!!");
 
     await Mediator.insertMany(mediators);

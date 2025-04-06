@@ -5,13 +5,22 @@ const BookingSchema = new mongoose.Schema({
   case_id: {
     type: String,
     ref: "Case",
-    required: true,
+    unique: true,
+    sparse: true,
   },
   created_by: {
     type: String,
     ref: "User",
-    required: true,
+    unique: true,
+    sparse: true,
   },
+  phone_number: {
+    type: String,
+  },
+  language: {
+    type: String,
+  },
+  case_type: { type: String },
   scheduled_date: { type: Date },
   booking_mode: { type: String, enum: ["Offline", "Online"], required: true },
   status: {
