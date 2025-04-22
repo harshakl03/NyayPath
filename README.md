@@ -40,12 +40,12 @@ npm install
 The project contains seeders located in the /seeders folder.
 Run the following commands one by one to populate the collection:
 ```
-node ./seeder/authSeeder.js
-node ./seeder/userSeeder.js
-node ./seeder/mediatorSeeder.js
-node ./seeder/caseSeeder.js
-node ./seeder/bookingSeeder.js
-node ./seeder/hearingSeeder.js
+node ./seeders/authSeeder.js
+node ./seeders/userSeeder.js
+node ./seeders/mediatorSeeder.js
+node ./seeders/caseSeeder.js
+node ./seeders/bookingSeeder.js
+node ./seeders/hearingSeeder.js
 ```
 
 ### 4️⃣ Start the Server
