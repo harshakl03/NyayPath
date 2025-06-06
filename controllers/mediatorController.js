@@ -12,11 +12,10 @@ const {
 
 const createMediator = async (req, res) => {
   try {
-    const { email, password, ...remainingDetails } = req.body;
+    const { _id, email, password, ...remainingDetails } = req.body;
     const exists = await isExistingAuth(email);
     if (exists)
       return res.status(401).json({ message: "Email already registered" });
-    const _id = `MED-${uuidv4()}`;
     const newMediator = new Mediator({
       _id,
       email,

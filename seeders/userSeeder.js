@@ -9,6 +9,7 @@ const users = [
     email: "rahul.sharma@example.com",
     address: { city: "Delhi", state: "Delhi", country: "India" },
     language_preference: "Hindi",
+    user_type: "LegalAid",
     cases_involved: ["CASE1001"],
   },
   {
@@ -18,6 +19,7 @@ const users = [
     email: "aditi.verma@example.com",
     address: { city: "Mumbai", state: "Maharashtra", country: "India" },
     language_preference: "English",
+    user_type: "Citizen",
     cases_involved: ["CASE1001"],
   },
   {
@@ -27,6 +29,7 @@ const users = [
     email: "karthik.reddy@example.com",
     address: { city: "Hyderabad", state: "Telangana", country: "India" },
     language_preference: "Telugu",
+    user_type: "NGO",
     cases_involved: ["CASE1002"],
   },
   {
@@ -36,6 +39,7 @@ const users = [
     email: "meera.iyer@example.com",
     address: { city: "Chennai", state: "Tamil Nadu", country: "India" },
     language_preference: "Tamil",
+    user_type: "Court",
     cases_involved: ["CASE1002"],
   },
   {
@@ -45,6 +49,7 @@ const users = [
     email: "rohan.desai@example.com",
     address: { city: "Ahmedabad", state: "Gujarat", country: "India" },
     language_preference: "Gujarati",
+    user_type: "Court",
     cases_involved: ["CASE1003"],
   },
   {
@@ -54,6 +59,7 @@ const users = [
     email: "sanya.kapoor@example.com",
     address: { city: "Kolkata", state: "West Bengal", country: "India" },
     language_preference: "Bengali",
+    user_type: "LegalAid",
     cases_involved: ["CASE1003"],
   },
   {
@@ -63,6 +69,7 @@ const users = [
     email: "vikram.joshi@example.com",
     address: { city: "Pune", state: "Maharashtra", country: "India" },
     language_preference: "Marathi",
+    user_type: "NGO",
     cases_involved: ["CASE1004"],
   },
   {
@@ -72,6 +79,7 @@ const users = [
     email: "neha.aggarwal@example.com",
     address: { city: "Jaipur", state: "Rajasthan", country: "India" },
     language_preference: "Hindi",
+    user_type: "Citizen",
     cases_involved: ["CASE1004"],
   },
   {
@@ -81,6 +89,7 @@ const users = [
     email: "arjun.menon@example.com",
     address: { city: "Bangalore", state: "Karnataka", country: "India" },
     language_preference: "Kannada",
+    user_type: "LegalAid",
     cases_involved: ["CASE1005"],
   },
   {
@@ -90,6 +99,7 @@ const users = [
     email: "pooja.bhatia@example.com",
     address: { city: "Lucknow", state: "Uttar Pradesh", country: "India" },
     language_preference: "Hindi",
+    user_type: "Court",
     cases_involved: ["CASE1005"],
   },
   {
@@ -99,6 +109,7 @@ const users = [
     email: "harsh.vardhan@example.com",
     address: { city: "Bhopal", state: "Madhya Pradesh", country: "India" },
     language_preference: "Hindi",
+    user_type: "NGO",
     cases_involved: ["CASE1006"],
   },
   {
@@ -108,6 +119,7 @@ const users = [
     email: "ananya.patel@example.com",
     address: { city: "Surat", state: "Gujarat", country: "India" },
     language_preference: "Gujarati",
+    user_type: "NGO",
     cases_involved: ["CASE1006"],
   },
   {
@@ -117,6 +129,7 @@ const users = [
     email: "devraj.singh@example.com",
     address: { city: "Chandigarh", state: "Chandigarh", country: "India" },
     language_preference: "Punjabi",
+    user_type: "LegalAid",
     cases_involved: ["CASE1007"],
   },
   {
@@ -126,6 +139,7 @@ const users = [
     email: "rashmi.rao@example.com",
     address: { city: "Mysore", state: "Karnataka", country: "India" },
     language_preference: "Kannada",
+    user_type: "NGO",
     cases_involved: ["CASE1007"],
   },
   {
@@ -135,6 +149,7 @@ const users = [
     email: "sameer.khan@example.com",
     address: { city: "Nagpur", state: "Maharashtra", country: "India" },
     language_preference: "Urdu",
+    user_type: "Citizen",
     cases_involved: ["CASE1008"],
   },
   {
@@ -144,6 +159,7 @@ const users = [
     email: "divya.nair@example.com",
     address: { city: "Thiruvananthapuram", state: "Kerala", country: "India" },
     language_preference: "Malayalam",
+    user_type: "Other",
     cases_involved: ["CASE1008"],
   },
   {
@@ -153,6 +169,7 @@ const users = [
     email: "anil.gupta@example.com",
     address: { city: "Varanasi", state: "Uttar Pradesh", country: "India" },
     language_preference: "Hindi",
+    user_type: "Other",
     cases_involved: ["CASE1009"],
   },
   {
@@ -162,6 +179,7 @@ const users = [
     email: "ritika.das@example.com",
     address: { city: "Guwahati", state: "Assam", country: "India" },
     language_preference: "Assamese",
+    user_type: "Court",
     cases_involved: ["CASE1009"],
   },
   {
@@ -171,6 +189,7 @@ const users = [
     email: "arvind.pillai@example.com",
     address: { city: "Coimbatore", state: "Tamil Nadu", country: "India" },
     language_preference: "Tamil",
+    user_type: "Citizen",
     cases_involved: ["CASE1010"],
   },
   {
@@ -180,6 +199,7 @@ const users = [
     email: "sneha.chatterjee@example.com",
     address: { city: "Howrah", state: "West Bengal", country: "India" },
     language_preference: "Bengali",
+    user_type: "Other",
     cases_involved: ["CASE1010"],
   },
   {
@@ -189,6 +209,7 @@ const users = [
     email: "manoj.kumar@example.com",
     address: { city: "Patna", state: "Bihar", country: "India" },
     language_preference: "Hindi",
+    user_type: "Other",
     cases_involved: ["CASE1011"],
   },
   {
@@ -198,6 +219,7 @@ const users = [
     email: "swati.malhotra@example.com",
     address: { city: "Indore", state: "Madhya Pradesh", country: "India" },
     language_preference: "Hindi",
+    user_type: "Court",
     cases_involved: ["CASE1011"],
   },
   {
@@ -207,6 +229,7 @@ const users = [
     email: "rakesh.mehta@example.com",
     address: { city: "Bhopal", state: "Madhya Pradesh", country: "India" },
     language_preference: "English",
+    user_type: "LegalAid",
     cases_involved: ["CASE1012"],
   },
   {
@@ -216,6 +239,7 @@ const users = [
     email: "priya.sharma@example.com",
     address: { city: "Gandhinagar", state: "Gujarat", country: "India" },
     language_preference: "Gujarati",
+    user_type: "Police",
     cases_involved: ["CASE1012"],
   },
   {
@@ -225,6 +249,7 @@ const users = [
     email: "aakash.sinha@example.com",
     address: { city: "Madurai", state: "Tamil Nadu", country: "India" },
     language_preference: "Tamil",
+    user_type: "Citizen",
     cases_involved: ["CASE1013"],
   },
   {
@@ -234,6 +259,7 @@ const users = [
     email: "deepika.banerjee@example.com",
     address: { city: "Kolkata", state: "West Bengal", country: "India" },
     language_preference: "Bengali",
+    user_type: "Police",
     cases_involved: ["CASE1013"],
   },
   {
@@ -243,6 +269,7 @@ const users = [
     email: "vishal.menon@example.com",
     address: { city: "Vijayawada", state: "Andhra Pradesh", country: "India" },
     language_preference: "Telugu",
+    user_type: "Police",
     cases_involved: ["CASE1014"],
   },
   {
@@ -256,6 +283,7 @@ const users = [
       country: "India",
     },
     language_preference: "Telugu",
+    user_type: "Police",
     cases_involved: ["CASE1014"],
   },
   {
@@ -265,6 +293,7 @@ const users = [
     email: "nitin.kulkarni@example.com",
     address: { city: "Mysore", state: "Karnataka", country: "India" },
     language_preference: "Kannada",
+    user_type: "Citizen",
     cases_involved: ["CASE1015"],
   },
   {
@@ -274,6 +303,7 @@ const users = [
     email: "anusha.reddy@example.com",
     address: { city: "Bangalore", state: "Karnataka", country: "India" },
     language_preference: "Kannada",
+    user_type: "Police",
     cases_involved: ["CASE1015"],
   },
 ];

@@ -11,7 +11,18 @@ const UserSchema = new mongoose.Schema({
     country: { type: String, required: true },
   },
   language_preference: { type: String, required: true },
+  user_type: {
+    type: String,
+    enum: ["Citizen", "Police", "LegalAid", "NGO", "Court", "Other"],
+    required: true,
+    default: "Citizen",
+  },
   cases_involved: { type: [String], ref: "Case" },
+  verification_status: {
+    type: String,
+    enum: ["Pending", "Verified", "Rejected"],
+    default: "Pending",
+  },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
