@@ -4,11 +4,13 @@ const {
   login,
   verifyMediator,
   verifyUser,
+  secret,
 } = require("../controllers/authController");
 const { createUser } = require("../controllers/userController");
 const { createMediator } = require("../controllers/mediatorController");
 
 router.post("/login", login);
+router.get("/secret", secret);
 router.post("/registerUser", createUser);
 router.post("/registerMediator", createMediator);
 router.post("/verifyMediator/:id/:status", verifyMediator);

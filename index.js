@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const app = express();
+const cors = require("cors");
 
 const ENV = require("./config/env");
 const connectDB = require("./config/db");
@@ -16,6 +17,19 @@ const offlineBookingRoutes = require("./routes/offlineBookingRoutes");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Access-Control-Allow-Credentials",
+    ],
+    credentials: true,
+  })
+);
 
 mongoose.set("strictQuery", false);
 connectDB();

@@ -38,11 +38,13 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const authRecord = await Auth.findOne({ email });
     if (!authRecord) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(401).json({ error: 401, message: "User not found" });
     }
     const isMatch = await bcrypt.compare(password, authRecord.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ error: 401, message: "Invalid credentials" });
     }
     const token = jwt.sign(
       {
@@ -162,6 +164,22 @@ const verifyUser = async (req, res) => {
   }
 };
 
+const secret = async (req, res) => {
+  const token = req.cookies.auth_token;
+  if (!token)
+    return res.status(401).json({
+      error: 401,
+      message: "Unauthorized: You don't have access to this",
+    });
+  const decode = jwt.verify(token, ENV.JWT_SECRET);
+  return res.status(200).json({
+    auth_id: decode.auth_id,
+    role: decode.role,
+    linked_id: decode.linked_id,
+    level: decode.level,
+  });
+};
+
 module.exports = {
   createAuth,
   login,
@@ -171,4 +189,5 @@ module.exports = {
   isAdmin,
   verifyMediator,
   verifyUser,
+  secret,
 };

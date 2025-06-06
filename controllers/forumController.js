@@ -16,12 +16,12 @@ const createForum = async (req, res) => {
     if (auth == -1)
       return res
         .status(401)
-        .json({ message: "Unauthorized: No token provided" });
+        .json({ error: 401, message: "Unauthorized: No token provided" });
 
     if (auth == 0)
       return res
         .status(401)
-        .json({ message: "Unauthorized: You don't have access" });
+        .json({ error: 401, message: "Unauthorized: You don't have access" });
 
     const newForum = new Forum({
       _id: forum_id,
@@ -42,18 +42,40 @@ const createForum = async (req, res) => {
       created_by_model: auth == 1 ? "User" : "Mediator",
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
 const getForums = async (req, res) => {
   try {
     const forums = await Forum.find();
-    if (forums.length == 0)
-      return res.status(404).json({ message: "No forums found" });
-    return res.status(200).json({ data: forums });
+
+    if (forums.length === 0)
+      return res.status(401).json({ error: 401, message: "No forums found" });
+
+    const forumsWithPosts = await Promise.all(
+      forums.map(async (forum) => {
+        const posts = await Post.find({ forum_id: forum._id });
+        const postsWithComments = await Promise.all(
+          posts.map(async (post) => {
+            const comments = await Comment.find({ post_id: post._id });
+            return {
+              ...post.toObject(),
+              comments,
+            };
+          })
+        );
+
+        return {
+          ...forum.toObject(),
+          posts: postsWithComments,
+        };
+      })
+    );
+
+    return res.status(200).json({ data: forumsWithPosts });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -89,19 +111,29 @@ const deleteForum = async (req, res) => {
     if (auth == -1)
       return res
         .status(401)
-        .json({ message: "Unauthorized: No token provided" });
+        .json({ error: 401, message: "Unauthorized: No token provided" });
 
     if (auth == 0)
       return res
         .status(401)
-        .json({ message: "Unauthorized: You don't have access" });
+        .json({ error: 401, message: "Unauthorized: You don't have access" });
+
+    const { created_by: forum_user } = await Forum.findById(forum_id, {
+      created_by: 1,
+      _id: 0,
+    });
+
+    if (forum_user !== id)
+      return res
+        .status(401)
+        .json({ error: 401, message: "Unauthorized: You don't have access" });
 
     const posts = await Post.find({ forum_id }).select("_id");
 
-    if (posts.length == 0)
-      return res
-        .status(500)
-        .json({ message: "Forum not found or posts doesnt exist" });
+    // if (posts.length == 0)
+    //   return res
+    //     .status(500)
+    //     .json({ error: 500, message: "Forum not found or posts doesnt exist" });
 
     const post_ids = posts.map((post) => post._id);
 
@@ -115,7 +147,7 @@ const deleteForum = async (req, res) => {
       id,
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -161,7 +193,7 @@ const createPost = async (req, res) => {
       created_by_model: auth == 1 ? "User" : "Mediator",
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -187,7 +219,7 @@ const findUserPosts = async (req, res) => {
 
     res.status(200).json({ message: "Post data found", posts });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -219,7 +251,7 @@ const downVote = async (req, res) => {
 
     res.status(200).json({ message: "DownVote added successfully", post });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -251,7 +283,7 @@ const deletePost = async (req, res) => {
       id,
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -297,7 +329,7 @@ const addComment = async (req, res) => {
       created_by_model: auth == 1 ? "User" : "Mediator",
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -323,7 +355,7 @@ const findUserComments = async (req, res) => {
 
     res.status(200).json({ message: "Comments data found", comments });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -355,7 +387,7 @@ const deleteComment = async (req, res) => {
       id,
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 
