@@ -1,7 +1,7 @@
 const Booking = require("../Models/Booking");
 const connectDB = require("../config/db");
 
-const bookings = [
+const bookingsData = [
   {
     _id: "BOOK1001",
     case_id: "CASE1001",
@@ -183,6 +183,15 @@ const bookings = [
     booked_at: new Date(),
   },
 ];
+
+const caseTypes = ["Civil", "Criminal", "Family", "Corporate"];
+const languages = ["English", "Hindi", "Kannada", "Telugu", "Tamil"];
+
+const bookings = bookingsData.map((booking, index) => ({
+  ...booking,
+  case_type: caseTypes[index % caseTypes.length],
+  language: languages[index % languages.length],
+}));
 
 (async function () {
   connectDB();

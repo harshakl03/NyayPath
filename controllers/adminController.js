@@ -188,17 +188,22 @@ const verifyUser = async (req, res) => {
     const status = req.params.status;
     const auth = await isAdmin(token);
 
-    if (status !== "Verified" || status !== "Rejected")
+    if (status != "Verified" && status != "Rejected")
       return res.status(401).json({
         error: 401,
         message: "Invalid Status",
       });
 
     if (auth == 3) {
+      const user = await User.findById(_id);
+      if (!user)
+        return res.status(400).json({ error: 400, message: "Invalid User ID" });
+
       await User.findOneAndUpdate(
         { _id },
         { $set: { verification_status: status } }
       );
+
       return res.status(201).json({ message: `User ${status}` });
     }
 

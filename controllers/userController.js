@@ -14,8 +14,15 @@ const ENV = require("../config/env");
 
 const createUser = async (req, res) => {
   try {
-    const { email, password, full_name, address, number, language_preference } =
-      req.body;
+    const {
+      email,
+      password,
+      user_type,
+      full_name,
+      address,
+      number,
+      language_preference,
+    } = req.body;
     const exists = await isExistingAuth(email);
     if (exists)
       return res.status(401).json({ message: "Email already registered" });
@@ -27,6 +34,7 @@ const createUser = async (req, res) => {
       email,
       address,
       language_preference,
+      user_type,
       cases_involved: [],
       created_at: new Date(),
       updated_at: new Date(),
@@ -151,26 +159,35 @@ const bookCase = async (req, res) => {
   }
 };
 
-const getMyCases = async (req, res) => {
+const getMyCaseById = async (req, res) => {
   try {
-    const { id: user_id } = req.params;
+    const { id: user_id, case_id } = req.params;
     const token = req.cookies.auth_token;
     const isUser = await isLoggedIn(user_id, token);
 
-    if (!isUser)
-      return res
-        .status(401)
-        .json({ error: 401, message: "Unauthorized access" });
+    if (!isUser) {
+      return res.status(401).json({
+        error: 401,
+        message: "Unauthorized access",
+      });
+    }
 
-    const userCases = await Case.find({ parties: user_id }).select(
+    // Find one case that matches both user and case ID
+    const userCase = await Case.findOne({
+      _id: case_id,
+      parties: user_id,
+    }).select(
       "_id case_type language parties location mediation_mode assigned_mediator status result initiated_by priority rate"
     );
 
-    if (!userCases.length) {
-      return res.status(404).json({ message: "No cases found for this user." });
-    }
+    // if (!userCase) {
+    //   return res.status(404).json({
+    //     error: 404,
+    //     message: "Case ID is invalid or not associated with this user.",
+    //   });
+    // }
 
-    res.status(200).json({ data: userCases });
+    res.status(200).json({ data: userCase });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -182,5 +199,5 @@ module.exports = {
   findUserById,
   deleteUserById,
   bookCase,
-  getMyCases,
+  getMyCaseById,
 };

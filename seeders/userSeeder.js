@@ -1,7 +1,7 @@
 const User = require("../Models/User");
 const connectDB = require("../config/db");
 
-const users = [
+const usersData = [
   {
     _id: "USER1001",
     full_name: "Rahul Sharma",
@@ -307,6 +307,11 @@ const users = [
     cases_involved: ["CASE1015"],
   },
 ];
+
+const users = usersData.map((user) => ({
+  ...user,
+  verification_status: "Verified",
+}));
 
 (async function () {
   connectDB();
