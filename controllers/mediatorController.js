@@ -1,4 +1,6 @@
 const Mediator = require("../Models/Mediator");
+const Case = require("../Models/Case");
+const User = require("../Models/User");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const ENV = require("../config/env");
@@ -35,19 +37,6 @@ const createMediator = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
-  }
-};
-
-const findMediators = async (req, res) => {
-  try {
-    const token = req.cookies.auth_token;
-    const status = await isAdmin(token);
-    if (status != 3)
-      return res.status(400).json({ message: "Unauthorized access" });
-    const mediators = await Mediator.find();
-    res.status(200).json(mediators);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 };
 
@@ -130,10 +119,61 @@ const changeStatus = async (req, res) => {
   }
 };
 
+const fetchMyCases = async (req, res) => {
+  try {
+    const { id: mediator_id } = req.params;
+    const token = req.cookies.auth_token;
+    const isUser = await isLoggedIn(mediator_id, token);
+
+    if (!isUser)
+      return res
+        .status(401)
+        .json({ error: 401, message: "Unauthorized access" });
+
+    const mediatorCases = await Case.find({
+      assigned_mediator: mediator_id,
+    }).select(
+      "_id case_type language parties location mediation_mode assigned_mediator status result initiated_by priority rate"
+    );
+
+    if (!mediatorCases.length) {
+      return res.status(404).json({ message: "No cases found for this user." });
+    }
+
+    res.status(200).json({ data: mediatorCases });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const uploadDocument = async (req, res) => {
+  try {
+    const case_id = req.params.case_id;
+    const mediator_id = req.params.mediator_id;
+    const { documents } = req.body;
+    const token = req.cookies.auth_token;
+    const isMediator = await isLoggedIn(mediator_id, token);
+    if (isMediator == 2) {
+      await Case.findOneAndUpdate(
+        { _id: case_id },
+        { $addToSet: { documents } }
+      );
+
+      return res
+        .status(200)
+        .json({ message: "Document Uploaded", case_id, mediator_id });
+    }
+    return res.status(500).json({ message: "Unauthorized access" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createMediator,
-  findMediators,
   findMediatorById,
   deleteMediatorById,
   changeStatus,
+  fetchMyCases,
+  uploadDocument,
 };

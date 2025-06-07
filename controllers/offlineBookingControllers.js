@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const callBooking = async (req, res) => {
   const language_arr = ["English", "Hindi", "Kannada", "Telugu", "Tamil"];
-  const mediation_arr = ["Family Dispute", "Land Dispute"];
+  const mediation_arr = ["Family Dispute", "Land Dispute", "Others"];
   try {
     const { phone_number, language, mediation_type } = req.body;
     const booking_id = `BOOKING-${uuidv4()}`;
@@ -12,8 +12,8 @@ const callBooking = async (req, res) => {
       _id: booking_id,
       booking_mode: "Offline",
       phone_number,
-      language: language_arr[language],
-      case_type: mediation_arr[mediation_type],
+      language: language_arr[language - 1],
+      case_type: mediation_arr[mediation_type - 1],
     });
 
     await newBooking.save();

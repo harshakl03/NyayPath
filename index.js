@@ -11,9 +11,9 @@ const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const mediatorRoutes = require("./routes/mediatorRoutes");
 const authRoutes = require("./routes/authRoutes");
-const caseRoutes = require("./routes/caseRoutes");
 const forumRoutes = require("./routes/forumRoutes");
 const offlineBookingRoutes = require("./routes/offlineBookingRoutes");
+const chatRoutes = require("./routes/chatRoutes");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -43,7 +43,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/mediators", mediatorRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/case", caseRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/api/forum", forumRoutes);
 app.use("/api/offline", offlineBookingRoutes);
 

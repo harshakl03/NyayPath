@@ -1,5 +1,6 @@
 const User = require("../Models/User");
 const Booking = require("../Models/Booking");
+const Case = require("../Models/Case");
 const { v4: uuidv4 } = require("uuid");
 const {
   createAuth,
@@ -150,10 +151,36 @@ const bookCase = async (req, res) => {
   }
 };
 
+const getMyCases = async (req, res) => {
+  try {
+    const { id: user_id } = req.params;
+    const token = req.cookies.auth_token;
+    const isUser = await isLoggedIn(user_id, token);
+
+    if (!isUser)
+      return res
+        .status(401)
+        .json({ error: 401, message: "Unauthorized access" });
+
+    const userCases = await Case.find({ parties: user_id }).select(
+      "_id case_type language parties location mediation_mode assigned_mediator status result initiated_by priority rate"
+    );
+
+    if (!userCases.length) {
+      return res.status(404).json({ message: "No cases found for this user." });
+    }
+
+    res.status(200).json({ data: userCases });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createUser,
   findUsers,
   findUserById,
   deleteUserById,
   bookCase,
+  getMyCases,
 };
