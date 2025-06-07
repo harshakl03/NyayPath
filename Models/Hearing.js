@@ -4,11 +4,10 @@ const HearingSchema = new mongoose.Schema({
   _id: { type: String, required: true },
   case_id: { type: String, ref: "Case", required: true },
   booking_id: { type: String, ref: "Booking", required: true },
-  user_ids: { type: [String], ref: "User", required: true },
   mediator_id: { type: String, ref: "Mediator", required: true },
   online_details: {
     meet_link: { type: String },
-    last_meet: { type: Date },
+    last_meet: { type: Date, default: Date.now },
   },
   offline_details: {
     meeting_address: { type: String },

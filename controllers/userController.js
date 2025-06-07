@@ -11,6 +11,7 @@ const {
 } = require("./authController");
 const jwt = require("jsonwebtoken");
 const ENV = require("../config/env");
+const Hearing = require("../Models/Hearing");
 
 const createUser = async (req, res) => {
   try {
@@ -126,7 +127,7 @@ const bookCase = async (req, res) => {
   try {
     const booking_id = `BOOKING-${uuidv4()}`;
     const user_id = req.params.id;
-    const { mode, case_type, language } = req.body;
+    const { mode, case_type, language, phone_number } = req.body;
     const token = req.cookies.auth_token;
 
     const isUser = await isLoggedIn(user_id, token);
@@ -142,6 +143,7 @@ const bookCase = async (req, res) => {
       booking_mode: mode,
       case_type,
       language,
+      phone_number,
     });
 
     await newBooking.save();
@@ -180,14 +182,37 @@ const getMyCaseById = async (req, res) => {
       "_id case_type language parties location mediation_mode assigned_mediator status result initiated_by priority rate"
     );
 
-    // if (!userCase) {
-    //   return res.status(404).json({
-    //     error: 404,
-    //     message: "Case ID is invalid or not associated with this user.",
-    //   });
-    // }
+    if (!userCase) {
+      return res.status(404).json({
+        error: 404,
+        message: "Case ID is invalid or not associated with this user.",
+      });
+    }
 
-    res.status(200).json({ data: userCase });
+    // Fetch schedule from Booking collection
+    const booking = await Booking.findOne({
+      case_id: case_id,
+    }).select("schedule_date booking_mode");
+
+    const { online_details, scheduled_date } = await Hearing.findOne({
+      case_id: case_id,
+    }).select("online_details scheduled_date");
+
+    // Combine case and schedule data, only including schedule if both date and mode exist
+    const responseData = {
+      ...userCase.toObject(),
+      meet_link: online_details.meet_link || null,
+      scheduled_date: scheduled_date || null,
+      schedule:
+        booking?.schedule_date && booking?.booking_mode
+          ? {
+              date: booking.schedule_date,
+              mode: booking.booking_mode,
+            }
+          : null,
+    };
+
+    res.status(200).json({ data: responseData });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

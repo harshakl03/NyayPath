@@ -1,6 +1,8 @@
 const Mediator = require("../Models/Mediator");
 const Case = require("../Models/Case");
 const User = require("../Models/User");
+const Hearing = require("../Models/Hearing");
+const Booking = require("../Models/Booking");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const ENV = require("../config/env");
@@ -140,7 +142,22 @@ const fetchMyCases = async (req, res) => {
       return res.status(404).json({ message: "No cases found for this user." });
     }
 
-    res.status(200).json({ data: mediatorCases });
+    // Fetch hearing details for all cases
+    const casesWithMeetingDetails = await Promise.all(
+      mediatorCases.map(async (caseItem) => {
+        const hearing = await Hearing.findOne({ case_id: caseItem._id }).select(
+          "online_details scheduled_date"
+        );
+
+        return {
+          ...caseItem.toObject(),
+          meet_link: hearing?.online_details?.meet_link || null,
+          schedule_date: hearing?.scheduled_date || null,
+        };
+      })
+    );
+
+    res.status(200).json({ data: casesWithMeetingDetails });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -169,6 +186,178 @@ const uploadDocument = async (req, res) => {
   }
 };
 
+const acceptCase = async (req, res) => {
+  try {
+    const { case_id, mediator_id } = req.params;
+    const { scheduled_date } = req.body;
+    const token = req.cookies.auth_token;
+    const isMediator = await isLoggedIn(mediator_id, token);
+    const hearing_id = `HEARING-${uuidv4()}`;
+    if (isMediator == 2) {
+      const caseDetails = await Case.findById(case_id);
+      if (caseDetails.status !== "Filed") {
+        return res
+          .status(400)
+          .json({ error: 400, message: "Case is not in filed state" });
+      }
+      await Case.findByIdAndUpdate(case_id, {
+        $set: { status: "Mediator Assigned" },
+      });
+      await Mediator.findByIdAndUpdate(mediator_id, {
+        $addToSet: { cases: case_id },
+      });
+      const booking = await Booking.findOne({ case_id }).select("_id");
+      await Hearing({
+        _id: hearing_id,
+        booking_id: booking._id,
+        case_id,
+        mediator_id,
+        status: "Scheduled",
+        scheduled_date,
+      }).save();
+      return res.status(200).json({ message: "Case Accepted", case_id });
+    }
+    return res.status(500).json({ message: "Unauthorized access" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const rejectCase = async (req, res) => {
+  try {
+    const { case_id, mediator_id } = req.params;
+    const token = req.cookies.auth_token;
+    const isMediator = await isLoggedIn(mediator_id, token);
+    if (isMediator == 2) {
+      const caseDetails = await Case.findById(case_id);
+      if (!caseDetails) {
+        return res.status(404).json({ error: 404, message: "Case not found" });
+      }
+      if (caseDetails.status !== "Filed") {
+        return res
+          .status(400)
+          .json({ error: 400, message: "Case is not in filed state" });
+      }
+      await Case.findByIdAndUpdate(case_id, {
+        $set: { status: "Mediator Rejected" },
+      });
+      await Mediator.findByIdAndUpdate(mediator_id, {
+        $pull: { cases: case_id },
+      });
+      return res.status(200).json({ message: "Case Rejected", case_id });
+    }
+    return res.status(500).json({ message: "Unauthorized access" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const createMeeting = async (req, res) => {
+  try {
+    const { case_id, mediator_id } = req.params;
+    const { scheduled_date } = req.body;
+    const token = req.cookies.auth_token;
+
+    // Check mediator authorization
+    const isMediator = await isLoggedIn(mediator_id, token);
+    if (isMediator === 2) {
+      // Check case status
+      const caseDetails = await Case.findById(case_id);
+      if (!caseDetails) {
+        return res.status(404).json({ message: "Case not found" });
+      }
+
+      if (caseDetails.status !== "Mediator Assigned") {
+        return res.status(400).json({
+          message:
+            "Meeting can only be created for cases with 'Mediator Assigned' status",
+        });
+      }
+
+      // Find associated booking
+      const booking = await Booking.findOne({ case_id });
+      if (!booking) {
+        return res
+          .status(404)
+          .json({ message: "Associated booking not found" });
+      }
+
+      // Generate Jitsi meeting link
+      const meetingId = `nyaypath-${case_id}-${Date.now()}`;
+      const meetingLink = `https://meet.jit.si/${meetingId}`;
+
+      // Update hearing with meeting link
+      await Hearing.findOneAndUpdate(
+        { case_id },
+        {
+          scheduled_date,
+          $set: {
+            online_details: {
+              meet_link: meetingLink,
+            },
+            scheduled_date: scheduled_date,
+          },
+        }
+      );
+
+      // Update case status to In Progress
+      await Case.findByIdAndUpdate(case_id, {
+        $set: { status: "In Progress" },
+      });
+
+      return res.status(200).json({
+        message: "Meeting created successfully",
+        data: {
+          meeting_link: meetingLink,
+          scheduled_date,
+          case_id,
+          status: "In Progress",
+        },
+      });
+    }
+    return res.status(401).json({ message: "Unauthorized access" });
+  } catch (err) {
+    console.error("Create Meeting Error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+const scheduleNewDate = async (req, res) => {
+  try {
+    const { case_id, mediator_id } = req.params;
+    const { scheduled_date: new_scheduled_date } = req.body;
+    const token = req.cookies.auth_token;
+
+    // Check mediator authorization
+    const isMediator = await isLoggedIn(mediator_id, token);
+    if (isMediator === 2) {
+      // Update only scheduled_date using findOneAndUpdate
+      const updatedHearing = await Hearing.findOneAndUpdate(
+        { case_id },
+        { scheduled_date: new_scheduled_date },
+        { new: true }
+      );
+
+      if (!updatedHearing) {
+        return res.status(404).json({ message: "Hearing not found" });
+      }
+
+      return res.status(200).json({
+        message: "Scheduled date updated successfully",
+        data: {
+          case_id,
+          scheduled_date: new_scheduled_date,
+          meeting_link: updatedHearing.online_details?.meet_link || null,
+        },
+      });
+    }
+    return res.status(401).json({ message: "Unauthorized access" });
+  } catch (err) {
+    console.error("Schedule New Date Error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createMediator,
   findMediatorById,
@@ -176,4 +365,8 @@ module.exports = {
   changeStatus,
   fetchMyCases,
   uploadDocument,
+  acceptCase,
+  rejectCase,
+  createMeeting,
+  scheduleNewDate,
 };
