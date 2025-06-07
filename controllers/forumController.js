@@ -256,35 +256,42 @@ const downVote = async (req, res) => {
 };
 
 const deletePost = async (req, res) => {
-  try {
-    const { id, post_id } = req.params;
-    const token = req.cookies.auth_token;
-    const auth = await isLoggedIn(id, token);
+  // try {
+  const { id, post_id } = req.params;
+  const token = req.cookies.auth_token;
+  const auth = await isLoggedIn(id, token);
 
-    if (auth == -1)
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
+  if (auth == -1)
+    return res
+      .status(401)
+      .json({ error: 401, message: "Unauthorized: No token provided" });
 
-    if (auth == 0)
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: You don't have access" });
+  if (auth == 0)
+    return res
+      .status(401)
+      .json({ error: 401, message: "Unauthorized: You don't have access" });
 
-    const post = await Post.findOne({ i_id: post_id });
-    if (!post) return res.status(400).json({ message: "Post doesn't exist" });
+  const post = await Post.findById(post_id);
 
-    await Comment.deleteMany({ post_id });
-    await Post.findByIdAndDelete(post_id);
+  if (!post)
+    return res.status(400).json({ error: 400, message: "Post doesn't exist" });
 
-    return res.status(200).json({
-      message: "Post and related data successfully deleted",
-      post_id,
-      id,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  if (post.created_by !== id)
+    return res
+      .status(401)
+      .json({ error: 401, message: "Unauthorized: You don't have access" });
+
+  await Comment.deleteMany({ post_id });
+  await Post.findByIdAndDelete(post_id);
+
+  return res.status(200).json({
+    message: "Post and related data successfully deleted",
+    post_id,
+    id,
+  });
+  // } catch (err) {
+  //   res.status(500).json({ error: err.message });
+  // }
 };
 
 //Comment
@@ -300,16 +307,17 @@ const addComment = async (req, res) => {
     if (auth == -1)
       return res
         .status(401)
-        .json({ message: "Unauthorized: No token provided" });
+        .json({ error: 401, message: "Unauthorized: No token provided" });
 
     if (auth == 0)
       return res
         .status(401)
-        .json({ message: "Unauthorized: You don't have access" });
+        .json({ error: 401, message: "Unauthorized: You don't have access" });
 
-    const isPost = await Post.findOne({ _id: post_id });
+    const isPost = await Post.findById(post_id);
 
-    if (!isPost) return res.status(401).json({ message: "Invalid Post Id" });
+    if (!isPost)
+      return res.status(401).json({ error: 401, message: "Invalid Post Id" });
 
     const newComment = new Comment({
       _id: comment_id,
@@ -375,9 +383,14 @@ const deleteComment = async (req, res) => {
         .status(401)
         .json({ message: "Unauthorized: You don't have access" });
 
-    const comment = await Comment.findOne({ _id: comment_id });
+    const comment = await Comment.findById(comment_id);
     if (!comment)
       return res.status(400).json({ message: "Comment doesn't exist" });
+
+    if (comment.created_by !== id)
+      return res
+        .status(401)
+        .json({ error: 401, message: "Unauthorized: You don't have access" });
 
     await Comment.findByIdAndDelete(comment_id);
 
