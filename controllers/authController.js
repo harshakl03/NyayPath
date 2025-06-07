@@ -180,6 +180,15 @@ const secret = async (req, res) => {
   });
 };
 
+const logOut = async (req, res) => {
+  res.clearCookie("auth_token", {
+    httpOnly: true,
+    secure: ENV.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  return res.status(200).json({ message: "Logged out successfully" });
+};
+
 module.exports = {
   createAuth,
   login,
@@ -190,4 +199,5 @@ module.exports = {
   verifyMediator,
   verifyUser,
   secret,
+  logOut,
 };

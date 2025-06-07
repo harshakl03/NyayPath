@@ -411,7 +411,7 @@ const authRecords = [
     email: "admin@nyaypath.com",
     password: "hashed_admin_password",
     level: 3,
-    linked_id: null,
+    linked_id: "ADMIN1001",
     role: "Admin",
     last_login: new Date(),
     created_at: new Date(),

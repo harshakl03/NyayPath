@@ -10,7 +10,7 @@ const CaseSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  location: { type: String, required: true },
+  location: { type: String },
   mediation_mode: {
     type: String,
     enum: ["Online", "Offline", "Hybrid"],

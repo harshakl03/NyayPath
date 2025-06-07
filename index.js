@@ -7,6 +7,7 @@ const cors = require("cors");
 const ENV = require("./config/env");
 const connectDB = require("./config/db");
 
+const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const mediatorRoutes = require("./routes/mediatorRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -38,6 +39,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!!!");
 });
 
+app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/mediators", mediatorRoutes);
 app.use("/api/auth", authRoutes);

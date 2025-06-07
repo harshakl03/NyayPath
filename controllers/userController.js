@@ -1,5 +1,5 @@
 const User = require("../Models/User");
-const Auth = require("../Models/Auth");
+const Booking = require("../Models/Booking");
 const { v4: uuidv4 } = require("uuid");
 const {
   createAuth,
@@ -113,4 +113,47 @@ const deleteUserById = async (req, res) => {
   }
 };
 
-module.exports = { createUser, findUsers, findUserById, deleteUserById };
+const bookCase = async (req, res) => {
+  try {
+    const booking_id = `BOOKING-${uuidv4()}`;
+    const user_id = req.params.id;
+    const { mode, case_type, language } = req.body;
+    const token = req.cookies.auth_token;
+
+    const isUser = await isLoggedIn(user_id, token);
+
+    if (isUser != 1 || isUser == 0)
+      return res
+        .status(401)
+        .json({ error: 401, message: "Unauthorized access" });
+
+    const newBooking = new Booking({
+      _id: booking_id,
+      created_by: user_id,
+      booking_mode: mode,
+      case_type,
+      language,
+    });
+
+    await newBooking.save();
+
+    res.status(201).json({
+      message: "Case booked successfully",
+      booking_id,
+      user_id,
+      mode,
+      case_type,
+      language,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = {
+  createUser,
+  findUsers,
+  findUserById,
+  deleteUserById,
+  bookCase,
+};
