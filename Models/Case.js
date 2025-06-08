@@ -26,7 +26,7 @@ const CaseSchema = new mongoose.Schema({
       "Filed",
       "Mediator Assigned",
       "Mediator Rejected",
-      "In progress",
+      "In Progress",
       "Closed",
     ],
     default: "Filed",

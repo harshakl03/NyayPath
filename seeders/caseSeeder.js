@@ -34,7 +34,7 @@ const cases = [
     location: "Mumbai",
     mediation_mode: "Offline",
     assigned_mediator: "MED1002",
-    status: "In progress",
+    status: "In Progress",
     result: null,
     documents: [
       {
@@ -149,7 +149,7 @@ const cases = [
     location: "Bangalore",
     mediation_mode: "Offline",
     assigned_mediator: "MED1007",
-    status: "In progress",
+    status: "In Progress",
     result: null,
     documents: [
       {
@@ -264,7 +264,7 @@ const cases = [
     location: "Bhopal",
     mediation_mode: "Online",
     assigned_mediator: "MED1004",
-    status: "In progress",
+    status: "In Progress",
     result: null,
     documents: [
       {
