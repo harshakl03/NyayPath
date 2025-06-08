@@ -13,6 +13,7 @@ const {
   deleteAuthByLinkedId,
   isAdmin,
 } = require("../controllers/authController");
+const meetingScheduler = require("../services/meetingScheduler");
 
 const createMediator = async (req, res) => {
   try {
@@ -310,13 +311,14 @@ const createMeeting = async (req, res) => {
           $set: {
             online_details: {
               meet_link: meetingLink,
-              is_meeting_active:
-                new Date() >= new Date(scheduled_date).getTime() - 5 * 60000,
+              is_meeting_active: false,
             },
-            scheduled_date: scheduled_date,
           },
-        }
+        },
+        { new: true }
       );
+
+      await meetingScheduler.scheduleActivation(case_id, scheduled_date);
 
       // Update case status to In Progress
       await Case.findByIdAndUpdate(case_id, {
@@ -365,22 +367,37 @@ const scheduleNewDate = async (req, res) => {
       if (!existingHearing) {
         return res.status(404).json({ message: "Hearing not found" });
       }
-      // Update only scheduled_date using findOneAndUpdate
-      const updatedHearing = await Hearing.findOneAndUpdate(
-        { case_id },
+
+      let updatedHearing;
+
+      if (caseDetails.mediation_mode !== "Online") {
         {
-          scheduled_date: new_scheduled_date,
-          $set: {
-            online_details: {
-              is_meeting_active:
-                new Date() >=
-                new Date(new_scheduled_date).getTime() - 5 * 60000,
-              meet_link: existingHearing?.online_details?.meet_link,
+          updatedHearing = await Hearing.findOneAndUpdate(
+            { case_id },
+            {
+              scheduled_date: new_scheduled_date,
+              $set: {
+                online_details: {
+                  is_meeting_active: false,
+                  meet_link: existingHearing?.online_details?.meet_link,
+                },
+              },
             },
+            { new: true }
+          );
+        }
+
+        await meetingScheduler.scheduleActivation(case_id, new_scheduled_date);
+      } else {
+        updatedHearing = await Hearing.findOneAndUpdate(
+          { case_id },
+          {
+            scheduled_date: new_scheduled_date,
           },
-        },
-        { new: true }
-      );
+          { new: true }
+        );
+      }
+      // Update only scheduled_date using findOneAndUpdate
 
       if (!updatedHearing) {
         return res.status(404).json({ message: "Hearing not found" });
@@ -391,6 +408,8 @@ const scheduleNewDate = async (req, res) => {
         data: {
           case_id,
           scheduled_date: new_scheduled_date,
+          meeting_address:
+            updatedHearing.offline_details?.meeting_address || null,
           meeting_link: updatedHearing.online_details?.meet_link || null,
         },
       });

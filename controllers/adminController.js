@@ -12,7 +12,7 @@ const fileCase = async (req, res) => {
 
     const id = req.params.id;
     const booking_id = req.params.booking_id;
-    const { party_ids, mediator_id, mediation_mode } = req.body;
+    const { party_ids, mediator_id, mediation_mode, rate } = req.body;
     const token = req.cookies.auth_token;
 
     const status = await isLoggedIn(id, token);
@@ -43,6 +43,7 @@ const fileCase = async (req, res) => {
         mediation_mode,
         assigned_mediator: mediator_id,
         status: "Filed",
+        rate,
       });
 
       await newCase.save();
