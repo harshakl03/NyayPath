@@ -40,15 +40,16 @@ npm install
 The project contains seeders located in the /seeders folder.
 Run the following commands one by one to populate the collection:
 ```
-node ./seeders/authSeeder.js
-node ./seeders/userSeeder.js
-node ./seeders/mediatorSeeder.js
-node ./seeders/caseSeeder.js
-node ./seeders/bookingSeeder.js
-node ./seeders/hearingSeeder.js
+node ./seeders/runAllSeeders.js
 ```
 
-### 4️⃣ Start the Server
+### 4️⃣ Setup nodemon
+The following command sets the dependencies for nodemon
+```
+npm install --save-dev nodemon
+```
+
+### 5️⃣ Start the Server
 Once the collection is seeded, start the backend server:
 ```
 nodemon index.js
