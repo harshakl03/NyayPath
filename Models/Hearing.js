@@ -7,6 +7,7 @@ const HearingSchema = new mongoose.Schema({
   mediator_id: { type: String, ref: "Mediator", required: true },
   online_details: {
     meet_link: { type: String },
+    is_meeting_active: { type: Boolean, default: false },
     last_meet: { type: Date, default: Date.now },
   },
   offline_details: {
@@ -25,5 +26,11 @@ const HearingSchema = new mongoose.Schema({
   scheduled_date: { type: Date },
   created_at: { type: Date, default: Date.now },
 });
+
+HearingSchema.methods.shouldMeetingBeActive = function () {
+  const now = new Date();
+  const meetingTime = new Date(this.scheduled_date);
+  return now >= new Date(meetingTime.getTime() - 5 * 60000);
+};
 
 module.exports = mongoose.model("Hearing", HearingSchema);

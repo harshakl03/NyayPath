@@ -127,7 +127,7 @@ const bookCase = async (req, res) => {
   try {
     const booking_id = `BOOKING-${uuidv4()}`;
     const user_id = req.params.id;
-    const { mode, case_type, language, phone_number } = req.body;
+    const { mode, case_type, language, phone_numbers: phone_number } = req.body;
     const token = req.cookies.auth_token;
 
     const isUser = await isLoggedIn(user_id, token);
@@ -179,7 +179,7 @@ const getMyCaseById = async (req, res) => {
       _id: case_id,
       parties: user_id,
     }).select(
-      "_id case_type language parties location mediation_mode assigned_mediator status result initiated_by priority rate"
+      "_id case_type language parties mediation_mode assigned_mediator status result initiated_by priority rate"
     );
 
     if (!userCase) {
@@ -194,22 +194,21 @@ const getMyCaseById = async (req, res) => {
       case_id: case_id,
     }).select("schedule_date booking_mode");
 
-    const { online_details, scheduled_date } = await Hearing.findOne({
+    const hearing = await Hearing.findOne({
       case_id: case_id,
     }).select("online_details scheduled_date");
 
     // Combine case and schedule data, only including schedule if both date and mode exist
     const responseData = {
       ...userCase.toObject(),
-      meet_link: online_details.meet_link || null,
-      scheduled_date: scheduled_date || null,
-      schedule:
-        booking?.schedule_date && booking?.booking_mode
-          ? {
-              date: booking.schedule_date,
-              mode: booking.booking_mode,
-            }
-          : null,
+      meet_link: hearing?.online_details?.meet_link || null,
+      is_meeting_active: hearing?.online_details?.is_meeting_active || false,
+      scheduled_date: hearing?.scheduled_date || null,
+      schedule: booking?.booking_mode
+        ? {
+            mode: booking.booking_mode,
+          }
+        : null,
     };
 
     res.status(200).json({ data: responseData });

@@ -37,15 +37,47 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const authRecord = await Auth.findOne({ email });
+
     if (!authRecord) {
       return res.status(401).json({ error: 401, message: "User not found" });
     }
+
     const isMatch = await bcrypt.compare(password, authRecord.password);
     if (!isMatch) {
       return res
         .status(401)
         .json({ error: 401, message: "Invalid credentials" });
     }
+
+    // Check verification status for users and mediators
+    if (authRecord.role !== "Admin") {
+      const Model = authRecord.role === "User" ? User : Mediator;
+      const profile = await Model.findById(authRecord.linked_id);
+      if (!profile) {
+        return res.status(404).json({
+          error: 404,
+          message: "Profile not found",
+        });
+      }
+
+      if (profile.verification_status === "Pending") {
+        return res.status(403).json({
+          error: 403,
+          message:
+            "Your account is pending verification. Please wait for admin approval.",
+        });
+      }
+
+      if (profile.verification_status === "Rejected") {
+        return res.status(403).json({
+          error: 403,
+          message:
+            "Your account verification was rejected. Please contact support.",
+        });
+      }
+    }
+
+    // Generate token after all checks pass
     const token = jwt.sign(
       {
         auth_id: authRecord._id,
@@ -56,6 +88,7 @@ const login = async (req, res) => {
       ENV.JWT_SECRET,
       { expiresIn: "1h" }
     );
+
     res.cookie("auth_token", token, {
       httpOnly: true,
       secure: ENV.NODE_ENV === "production",
@@ -67,12 +100,13 @@ const login = async (req, res) => {
       token,
       role: authRecord.role,
       level: authRecord.level,
+      linked_id: authRecord.linked_id,
     });
   } catch (error) {
+    console.error("Login Error:", error);
     res.status(500).json({ error: error.message });
   }
 };
-
 const isAdmin = async (token) => {
   if (!token) {
     return -1;
