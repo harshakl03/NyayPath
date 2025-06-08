@@ -494,6 +494,51 @@ const scheduleVenue = async (req, res) => {
   }
 };
 
+const closeCase = async (req, res) => {
+  try {
+    const { case_id, mediator_id } = req.params;
+    const token = req.cookies.auth_token;
+
+    // Check mediator authorization
+    const isMediator = await isLoggedIn(mediator_id, token);
+    if (isMediator !== 2) {
+      return res.status(401).json({ message: "Unauthorized access" });
+    }
+
+    // Find case with mediator association
+    const caseDetails = await Case.findOne({
+      _id: case_id,
+      assigned_mediator: mediator_id,
+    });
+
+    if (!caseDetails) {
+      return res.status(404).json({
+        message: "Case not found or not assigned to this mediator",
+      });
+    }
+
+    // Update case status to Closed
+    await Case.findByIdAndUpdate(case_id, {
+      $set: {
+        status: "Closed",
+      },
+    });
+
+    return res.status(200).json({
+      message: "Case closed successfully",
+      data: {
+        case_id,
+        mediator_id,
+        status: "Closed",
+        closed_at: new Date(),
+      },
+    });
+  } catch (err) {
+    console.error("Close Case Error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createMediator,
   findMediatorById,
@@ -506,4 +551,5 @@ module.exports = {
   createMeeting,
   scheduleNewDate,
   scheduleVenue,
+  closeCase,
 };

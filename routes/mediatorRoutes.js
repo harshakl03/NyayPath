@@ -11,6 +11,7 @@ const {
   createMeeting,
   scheduleNewDate,
   scheduleVenue,
+  closeCase,
 } = require("../controllers/mediatorController");
 
 router.get("/:id", findMediatorById);
@@ -23,5 +24,6 @@ router.post("/createMeeting/:mediator_id/:case_id", createMeeting);
 router.post("/scheduleVenue/:mediator_id/:case_id", scheduleVenue);
 router.post("/scheduleNewDate/:mediator_id/:case_id", scheduleNewDate);
 router.patch("/uploadDocument/:case_id/:mediator_id", uploadDocument);
+router.post("/closeCase/:mediator_id/:case_id", closeCase);
 
 module.exports = router;
