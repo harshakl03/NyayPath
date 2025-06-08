@@ -370,7 +370,7 @@ const scheduleNewDate = async (req, res) => {
 
       let updatedHearing;
 
-      if (caseDetails.mediation_mode !== "Online") {
+      if (caseDetails.mediation_mode === "Online") {
         {
           updatedHearing = await Hearing.findOneAndUpdate(
             { case_id },
@@ -386,8 +386,6 @@ const scheduleNewDate = async (req, res) => {
             { new: true }
           );
         }
-
-        await meetingScheduler.scheduleActivation(case_id, new_scheduled_date);
       } else {
         updatedHearing = await Hearing.findOneAndUpdate(
           { case_id },
@@ -396,6 +394,7 @@ const scheduleNewDate = async (req, res) => {
           },
           { new: true }
         );
+        console.log(updatedHearing);
       }
       // Update only scheduled_date using findOneAndUpdate
 
