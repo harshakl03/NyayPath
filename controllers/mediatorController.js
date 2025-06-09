@@ -16,31 +16,34 @@ const {
 const meetingScheduler = require("../services/meetingScheduler");
 
 const createMediator = async (req, res) => {
-  try {
-    const { _id, email, password, ...remainingDetails } = req.body;
-    const exists = await isExistingAuth(email);
-    if (exists)
-      return res.status(401).json({ message: "Email already registered" });
-    const newMediator = new Mediator({
-      _id,
-      email,
-      ...remainingDetails,
-      cases: [],
-      created_at: new Date(),
-      updated_at: new Date(),
-    });
-    await newMediator.save();
-    const authResponse = await createAuth(email, password, _id, "Mediator", 2);
-    res.status(201).json({
-      message: "Mediator created successfully",
-      _id,
-      auth_id: authResponse._id,
-      role: authResponse.role,
-      level: authResponse.level,
-    });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
+  // try {
+  const { email, password, ...remainingDetails } = req.body;
+  const _id = `MED-${uuidv4()}`;
+  const exists = await isExistingAuth(email);
+  if (exists)
+    return res
+      .status(401)
+      .json({ error: 401, message: "Email already registered" });
+  const newMediator = new Mediator({
+    _id,
+    email,
+    ...remainingDetails,
+    cases: [],
+    created_at: new Date(),
+    updated_at: new Date(),
+  });
+  await newMediator.save();
+  const authResponse = await createAuth(email, password, _id, "Mediator", 2);
+  res.status(201).json({
+    message: "Mediator created successfully",
+    _id,
+    auth_id: authResponse._id,
+    role: authResponse.role,
+    level: authResponse.level,
+  });
+  // } catch (error) {
+  //   res.status(400).json({ error: error.message });
+  // }
 };
 
 const findMediatorById = async (req, res) => {
@@ -136,7 +139,7 @@ const fetchMyCases = async (req, res) => {
     const mediatorCases = await Case.find({
       assigned_mediator: mediator_id,
     }).select(
-      "_id case_type language parties location mediation_mode assigned_mediator status result initiated_by priority rate"
+      "_id case_type language parties location mediation_mode assigned_mediator status result initiated_by priority rate final_verdict"
     );
 
     if (!mediatorCases.length) {
@@ -152,6 +155,7 @@ const fetchMyCases = async (req, res) => {
 
         return {
           ...caseItem.toObject(),
+          final_verdict: caseItem.final_verdict || null,
           meet_link: hearing?.online_details?.meet_link || null,
           location: hearing?.offline_details?.meeting_address || null,
           is_meeting_active:

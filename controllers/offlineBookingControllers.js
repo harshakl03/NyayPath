@@ -18,8 +18,6 @@ const callBooking = async (req, res) => {
 
     await newBooking.save();
 
-    console.log({ message: "Case Booked Successfully", booking_id });
-
     res.status(200).json({ message: "Case Booked Successfully", booking_id });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -179,7 +179,7 @@ const getMyCaseById = async (req, res) => {
       _id: case_id,
       parties: user_id,
     }).select(
-      "_id case_type language parties mediation_mode assigned_mediator status result initiated_by priority rate"
+      "_id case_type language parties mediation_mode assigned_mediator status result initiated_by priority rate final_verdict"
     );
 
     if (!userCase) {
@@ -196,12 +196,14 @@ const getMyCaseById = async (req, res) => {
 
     const hearing = await Hearing.findOne({
       case_id: case_id,
-    }).select("online_details scheduled_date");
+    }).select("online_details offline_details scheduled_date");
 
     // Combine case and schedule data, only including schedule if both date and mode exist
     const responseData = {
       ...userCase.toObject(),
+      location: hearing?.offline_details?.meeting_address || null,
       meet_link: hearing?.online_details?.meet_link || null,
+      final_verdict: userCase.final_verdict || null,
       is_meeting_active: hearing?.online_details?.is_meeting_active || false,
       scheduled_date: hearing?.scheduled_date || null,
       schedule: booking?.booking_mode
