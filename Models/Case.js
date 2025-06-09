@@ -43,6 +43,12 @@ const CaseSchema = new mongoose.Schema({
   ],
   rate: { type: Number, min: 0 },
   priority: { type: String, enum: ["Normal", "Urgent"], default: "Normal" },
+  final_verdict: {
+    ipfs_hash: { type: String },
+    summary: { type: String },
+    resolution: { type: String },
+    remarks: { type: String },
+  },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
