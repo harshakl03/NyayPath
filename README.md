@@ -16,8 +16,6 @@ This repository contains the **Node.js (Express) backend**, which interacts with
 - **Backend:** Node.js (Express.js)  
 - **Database:** MongoDB  
 - **Authentication:** JWT  
-- **Document Generation:** PDFKit  
-- **AI Integration:** FastAPI (Python)  
 - **Blockchain:** Solidity (Ethereum/Polygon)  
 
 ---
