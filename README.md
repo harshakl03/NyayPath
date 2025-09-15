@@ -8,7 +8,9 @@ This repository contains the **Node.js (Express) backend**, which interacts with
 - **MongoDB** → Stores mediators, users, and case data.  
 - **BHASHINI API** → Handles speech-to-text & multilingual translations.  
 - **AI Model (Python API)** → Intelligent mediator matching (to be integrated).  
-- **Blockchain (Smart Contracts + IPFS)** → Secure case storage & document verification.  
+- **Blockchain (Smart Contracts + IPFS)** → Secure case storage & document verification.
+
+Demo Link :- https://drive.google.com/file/d/1B-N8JUm9vqxrxig8VhViZ1p0HYi_pakh/view?usp=drivesdk
 
 ---
 
